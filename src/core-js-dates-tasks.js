@@ -47,7 +47,10 @@ function getTime(date) {
  * '2024-01-30T00:00:00.000Z' => 'Tuesday'
  */
 function getDayName(date) {
-  return new Date(date).toLocaleString('en-US', { weekday: 'long' });
+  return new Date(date).toLocaleString('en-US', {
+    weekday: 'long',
+    timeZone: 'UTC',
+  });
 }
 
 /**
@@ -63,8 +66,8 @@ function getDayName(date) {
  */
 function getNextFriday(date) {
   const currentDate = new Date(date);
-  const daysDiff = (5 - currentDate.getDay() + 7) % 7 || 7;
-  return new Date(currentDate.setDate(currentDate.getDate() + daysDiff));
+  const daysDiff = (5 - currentDate.getUTCDay() + 7) % 7 || 7;
+  return new Date(currentDate.setUTCDate(currentDate.getUTCDate() + daysDiff));
 }
 
 /**
@@ -239,16 +242,16 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
 function getWorkSchedule(period, countWorkDays, countOffDays) {
-  const start = Date.parse(period.start.split('-').reverse().join('-'));
-  const end = Date.parse(period.end.split('-').reverse().join('-'));
+  const start = Date.UTC(...period.start.split('-').reverse());
+  const end = Date.UTC(...period.end.split('-').reverse());
   const daysDiff = (end - start) / (1000 * 60 * 60 * 24);
   const daysArr = [];
-  for (let i = 1; i <= daysDiff + 1; i += 1) {
+  for (let i = 0; i <= daysDiff; i += 1) {
     daysArr.push(
       new Date(
-        new Date(period.start).getFullYear(),
-        new Date(period.start).getMonth(),
-        new Date(period.start).getDate() + i
+        new Date(period.start).getUTCFullYear(),
+        new Date(period.start).getUTCMonth(),
+        new Date(period.start).getUTCDate() + i
       )
     );
   }
